@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5주차 핸드아웃 · 소상공인을 위한 AI 매출 도구 만들기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Duolingo Palette */
+  --duo-green:#58cc02;
+  --duo-green-dark:#3f8f01;
+  --duo-green-light:#d7ffb8;
+  --sky-blue:#1cb0f6;
+  --sky-blue-dark:#1487c0;
+  --sunshine:#ffc700;
+  --grape:#a570ff;
+  --pink:#cc348d;
+  --snow:#ffffff;
+  --cloud:#e5e5e5;
+  --silver:#afafaf;
+  --graphite:#777777;
+  --charcoal:#4b4b4b;
+  --ink:#3c3c3c;
+  /* Type */
+  --feather:'Jua', ui-sans-serif, system-ui, sans-serif;
+  --din:'Noto Sans KR', ui-sans-serif, system-ui, sans-serif;
+  /* Radius */
+  --r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:var(--din);
+  color:var(--ink);
+  background:var(--snow);
+  line-height:1.5;
+  letter-spacing:0.01em;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:840px;margin:0 auto;padding:32px 24px 96px;}
+
+/* ---------- Headings ---------- */
+h1,h2,h3{font-family:var(--feather);font-weight:400;letter-spacing:-0.01em;line-height:1.2;}
+.eyebrow{
+  display:inline-block;font-family:var(--din);font-weight:700;font-size:13px;
+  letter-spacing:0.08em;color:var(--duo-green);background:var(--duo-green-light);
+  padding:6px 14px;border-radius:999px;margin-bottom:16px;
+}
+
+/* ---------- Hero ---------- */
+.hero{text-align:center;padding:24px 0 8px;}
+.hero h1{font-size:46px;color:var(--duo-green);margin-bottom:14px;}
+.hero p.sub{font-size:18px;color:var(--graphite);font-weight:500;max-width:560px;margin:0 auto;}
+.mascot{font-size:64px;line-height:1;margin-bottom:8px;}
+
+/* ---------- Progress / mission bar ---------- */
+.mission{
+  display:flex;align-items:center;gap:14px;
+  background:var(--snow);border:2px solid var(--cloud);border-bottom-width:4px;
+  border-radius:var(--r);padding:16px 20px;margin:28px 0;
+}
+.mission .flag{font-size:32px;}
+.mission .bar{flex:1;}
+.mission .track{height:14px;background:var(--cloud);border-radius:999px;overflow:hidden;}
+.mission .fill{height:100%;width:100%;background:var(--duo-green);border-radius:999px;}
+.mission .label{font-weight:700;font-size:14px;color:var(--charcoal);margin-top:6px;}
+
+/* ---------- Section ---------- */
+section{margin-top:56px;}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.sec-num{
+  flex:none;width:42px;height:42px;border-radius:50%;
+  background:var(--duo-green);color:#fff;font-family:var(--feather);
+  font-size:22px;display:grid;place-items:center;
+  box-shadow:0 4px 0 var(--duo-green-dark);
+}
+.sec-head h2{font-size:28px;color:var(--ink);}
+.sec-intro{color:var(--graphite);font-size:16px;margin:-8px 0 20px 54px;}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--snow);border:2px solid var(--cloud);border-bottom-width:4px;
+  border-radius:var(--r);padding:22px 24px;margin-bottom:16px;
+}
+.card h3{font-size:19px;color:var(--charcoal);margin-bottom:10px;}
+.card p{color:var(--graphite);font-size:15px;}
+.card.tip{border-color:var(--duo-green-light);background:#f6fff0;}
+.card.warn{border-color:#ffe39e;background:#fffbe9;}
+
+/* ---------- Tool grid ---------- */
+.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.tool{
+  text-align:center;background:var(--snow);border:2px solid var(--cloud);
+  border-bottom-width:4px;border-radius:var(--r);padding:20px 14px;
+}
+.tool .ic{font-size:40px;}
+.tool .nm{font-family:var(--feather);font-size:18px;color:var(--ink);margin:6px 0 8px;}
+.tool .lim{font-size:13px;color:var(--graphite);line-height:1.45;}
+.tool .lim b{color:var(--duo-green-dark);}
+
+/* ---------- Prompt box ---------- */
+.prompt{
+  background:#f7f9fb;border:2px solid var(--cloud);border-radius:var(--r);
+  padding:18px 18px 16px;margin-top:14px;position:relative;
+}
+.prompt .ptitle{
+  display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;
+  color:var(--sky-blue-dark);margin-bottom:10px;
+}
+.prompt .pchip{
+  font-size:12px;font-weight:700;color:#fff;background:var(--sky-blue);
+  padding:3px 10px;border-radius:999px;letter-spacing:0.04em;
+}
+.prompt .pchip.copy{background:var(--grape);}
+.prompt-text{
+  font-family:'Courier New',var(--din);font-size:14px;color:var(--ink);
+  background:#fff;border:1px dashed var(--silver);border-radius:8px;
+  padding:14px 16px;white-space:pre-wrap;line-height:1.6;
+}
+.prompt-text .blank{color:var(--pink);font-weight:700;}
+.prompt-text .blank.filled{color:var(--duo-green-dark);}
+.copy-btn{
+  margin-top:12px;font-family:var(--din);font-weight:700;font-size:13px;
+  color:#fff;background:var(--sky-blue);border:none;border-radius:10px;
+  padding:9px 18px;cursor:pointer;box-shadow:0 4px 0 var(--sky-blue-dark);
+  transition:transform .05s;
+}
+.copy-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--sky-blue-dark);}
+
+/* ---------- Step (써보기 → 점검받기) ---------- */
+.step{margin-top:18px;padding-top:16px;border-top:2px dashed #ececec;}
+.step:first-of-type{margin-top:6px;padding-top:0;border-top:none;}
+.step-tag{
+  display:inline-block;font-family:var(--feather);font-size:15px;color:#fff;
+  background:var(--duo-green);border-radius:999px;padding:6px 16px;margin-bottom:10px;
+}
+.step-tag.blue{background:var(--sky-blue);}
+.step .desc{color:var(--graphite);font-size:14px;line-height:1.55;margin-bottom:6px;}
+.step .desc b{color:var(--charcoal);}
+
+/* ---------- Checklist ---------- */
+.check{list-style:none;}
+.check li{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 0;
+  border-bottom:2px solid #f0f0f0;font-size:15px;
+}
+.check li:last-child{border-bottom:none;}
+.box{
+  flex:none;width:26px;height:26px;border:2px solid var(--cloud);
+  border-bottom-width:3px;border-radius:8px;margin-top:1px;cursor:pointer;
+  display:grid;place-items:center;transition:.1s;user-select:none;
+}
+.box::after{content:'✓';color:transparent;font-weight:700;font-size:16px;}
+.box.checked{background:var(--duo-green);border-color:var(--duo-green-dark);}
+.box.checked::after{color:#fff;}
+.check li b{color:var(--charcoal);}
+
+/* ---------- Forbidden words ---------- */
+.banned{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 4px;}
+.banned span{
+  font-family:var(--feather);font-size:17px;color:var(--pink);
+  background:#ffeef7;border:2px solid #ffd1e8;border-radius:999px;
+  padding:6px 16px;text-decoration:line-through;
+}
+
+/* ---------- Timetable ---------- */
+.tt{display:flex;flex-direction:column;gap:10px;}
+.tt .row{
+  display:flex;align-items:center;gap:14px;
+  background:var(--snow);border:2px solid var(--cloud);border-bottom-width:4px;
+  border-radius:var(--r);padding:12px 16px;
+}
+.tt .min{
+  flex:none;font-family:var(--feather);font-size:16px;color:#fff;
+  background:var(--grape);border-radius:8px;padding:6px 12px;min-width:64px;text-align:center;
+}
+.tt .what b{color:var(--charcoal);display:block;font-size:15px;}
+.tt .what span{color:var(--graphite);font-size:13px;}
+
+/* ---------- Persona worksheet ---------- */
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.field{}
+.field label{display:block;font-weight:700;font-size:14px;color:var(--charcoal);margin-bottom:6px;}
+.field .line{
+  display:block;width:100%;border:2px solid var(--cloud);border-bottom-width:3px;
+  border-radius:8px;height:42px;background:#fafafa;
+  font-family:var(--din);font-size:15px;color:var(--ink);padding:8px 12px;resize:none;
+}
+.field .line:focus{outline:none;border-color:var(--duo-green);background:#fff;}
+.field.full{grid-column:1 / -1;}
+.field .line.tall{height:64px;}
+
+/* ---------- Copy note lines ---------- */
+.notelines{counter-reset:n;}
+.notelines .nl{
+  display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:2px dashed #ececec;
+}
+.notelines .nl::before{
+  counter-increment:n;content:counter(n);font-family:var(--feather);
+  color:var(--duo-green);font-size:16px;width:22px;text-align:center;
+}
+.notelines .nl .noteinput{
+  flex:1;height:30px;border:none;border-bottom:2px solid var(--cloud);
+  background:transparent;font-family:var(--din);font-size:15px;color:var(--ink);padding:2px 4px;
+}
+.notelines .nl .noteinput:focus{outline:none;border-bottom-color:var(--duo-green);}
+
+/* ---------- Quiz ---------- */
+.quiz li{
+  background:var(--snow);border:2px solid var(--cloud);border-bottom-width:4px;
+  border-radius:var(--r);padding:14px 18px;margin-bottom:12px;list-style:none;
+  display:flex;align-items:flex-start;gap:14px;font-size:15px;
+}
+.quiz .ox{display:flex;gap:8px;flex:none;}
+.quiz .ox b{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--feather);font-size:16px;border:2px solid var(--cloud);
+  border-bottom-width:3px;color:var(--silver);cursor:pointer;transition:.1s;user-select:none;
+}
+.quiz .ox b:hover{border-color:var(--silver);}
+.quiz .ox b.sel{background:var(--duo-green);color:#fff;border-color:var(--duo-green-dark);}
+.quiz .qtext{flex:1;padding-top:5px;}
+.quiz .explain{display:none;margin-top:8px;font-size:13px;font-weight:700;}
+/* graded states */
+.quiz li.correct{border-color:var(--duo-green);background:#f6fff0;}
+.quiz li.correct .explain{display:block;color:var(--duo-green-dark);}
+.quiz li.wrong{border-color:#ffb3b3;background:#fff5f5;}
+.quiz li.wrong .explain{display:block;color:#e53935;}
+.quiz .ox b.wrongpick{background:#e53935;color:#fff;border-color:#b71c1c;}
+.quiz .ox b.ans{border-color:var(--duo-green-dark);color:var(--duo-green-dark);box-shadow:0 0 0 3px var(--duo-green-light);}
+.quiz li.locked .ox b{cursor:default;}
+
+/* done button + score */
+.done-btn{
+  display:block;width:100%;font-family:var(--feather);font-size:18px;color:#fff;
+  background:var(--duo-green);border:none;border-radius:var(--r);padding:16px;
+  cursor:pointer;box-shadow:0 4px 0 var(--duo-green-dark);transition:transform .05s;margin-top:4px;
+}
+.done-btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--duo-green-dark);}
+.done-btn.retry{background:var(--sky-blue);box-shadow:0 4px 0 var(--sky-blue-dark);font-size:15px;padding:12px;}
+.quiz-score{
+  display:none;text-align:center;margin-top:18px;padding:24px;border-radius:16px;
+  background:var(--duo-green-light);border:2px solid var(--duo-green);
+}
+.quiz-score.show{display:block;}
+.quiz-score .score-num{font-family:var(--feather);font-size:40px;color:var(--duo-green-dark);}
+.quiz-score .score-msg{font-size:15px;font-weight:700;color:var(--charcoal);margin-top:6px;}
+
+/* ---------- Callout / closing ---------- */
+.closing{
+  text-align:center;background:var(--duo-green);color:#fff;border-radius:20px;
+  padding:40px 28px;margin-top:64px;box-shadow:0 6px 0 var(--duo-green-dark);
+}
+.closing h2{color:#fff;font-size:30px;margin-bottom:12px;}
+.closing p{font-size:16px;opacity:.95;max-width:520px;margin:0 auto;}
+.closing .next{
+  display:inline-block;margin-top:20px;background:#fff;color:var(--duo-green-dark);
+  font-family:var(--feather);font-size:16px;padding:12px 26px;border-radius:12px;
+}
+
+.foot{text-align:center;color:var(--silver);font-size:13px;margin-top:32px;}
+
+/* ---------- Responsive ---------- */
+@media (max-width:640px){
+  .hero h1{font-size:34px;}
+  .tools{grid-template-columns:1fr;}
+  .fields{grid-template-columns:1fr;}
+  .sec-intro{margin-left:0;}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  body{background:#fff;}
+  .copy-btn{display:none;}
+  .card,.tool,.tt .row,.quiz li,.mission{border-bottom-width:2px;}
+  .closing{box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  section{page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="mascot">🛒💚</div>
+    <span class="eyebrow">화성 AI 시민리더 양성과정 · 5주차 · 핸드아웃 ①</span>
+    <h1>소상공인을 위한<br>'AI 매출 도구' 만들기</h1>
+    <p class="sub">오늘 만든 걸 <b>오늘 저녁 우리 가게에 붙일 수 있는가?</b><br>이론은 10분, 첫 결과물은 60분 안에 — 빨리 만들고 바로 씁니다.</p>
+  </header>
+
+  <!-- MISSION BAR -->
+  <div class="mission">
+    <div class="flag">🏁</div>
+    <div class="bar">
+      <div class="track"><div class="fill"></div></div>
+      <div class="label">오늘의 미션 · 전단지 1종 + 소상공인 수업안 1종 완성</div>
+    </div>
+  </div>
+
+  <!-- 1. 오늘 만들 것 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">1</div><h2>오늘 들고 갈 '매출 도구 세트'</h2></div>
+    <p class="sec-intro">실습을 마치면 <b>전단지 1종</b>이 완성됩니다. (온라인 상세페이지·숏폼은 <b>핸드아웃 ②</b>에서)</p>
+    <div class="card tip">
+      <ul class="check">
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span><b>헤드라인</b> 5개 쓰고 1개 고르기 (실습①~⑥)</span></li>
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span><b>메시지 2줄</b>(혜택+행동) 쓰기 (실습⑦~⑪)</span></li>
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span><b>전단지 1장</b>으로 완성 (실습⑫)</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2. 오늘의 도구 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">2</div><h2>오늘 쓸 도구 3종 · 무료 한도</h2></div>
+    <p class="sec-intro">무료 한도가 정해져 있으니 아껴 씁니다. 한도를 넘기면 결과물이 막혀요.</p>
+    <div class="tools">
+      <div class="tool">
+        <div class="ic">🎨</div><div class="nm">Canva</div>
+        <div class="lim">매직 미디어 이미지 <b>평생 50회</b>·영상 <b>평생 5회</b><br>(월 갱신 아님)<br>→ 오늘은 이미지 <b>2~3회</b>만</div>
+      </div>
+      <div class="tool">
+        <div class="ic">💬</div><div class="nm">ChatGPT</div>
+        <div class="lim">카피·대본 초안 작성<br>이미지 생성도 가능<br>→ 카피·문구 작성에 <b>넉넉하게 활용</b></div>
+      </div>
+      <div class="tool">
+        <div class="ic">🎬</div><div class="nm">Google Vids</div>
+        <div class="lim">기본 편집 무제한 +<br>AI 영상(Veo 3.1) <b>월 10회</b><br>(클립당 8초·720p)</div>
+      </div>
+    </div>
+    <div class="card warn" style="margin-top:16px;">
+      <h3>⚠️ 숏폼은 이렇게 구성하세요</h3>
+      <p>30초 숏폼은 <b>'AI 클립 1~2개 + 사진·텍스트 편집'</b>으로. AI 영상만으로 채우면 월 10회 한도를 금방 소진합니다.</p>
+    </div>
+  </section>
+
+  <!-- 3. 실습 프롬프트 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">3</div><h2>업종별 헤드라인 랩 — 내가 먼저, AI는 코치</h2></div>
+    <p class="sec-intro">업종이 정해져 있어요. <b>STEP 1</b>에서 헤드라인 5개를 직접 쓰면 <b>STEP 2</b> 프롬프트에 자동으로 채워집니다 — <b>복사만</b> 누르면 끝.</p>
+
+    <!-- 실습 1 · 수제쿠키 공방 -->
+    <div class="card">
+      <h3>실습① 🍪 수제쿠키 공방 헤드라인</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기 (5분)</div>
+        <p class="desc"><b>수제쿠키 공방</b> 사장이라고 생각하고 전단 헤드라인 5개를 직접 써보세요.<br>
+        규칙: ① 각 12자 이내 &nbsp;② 최고·유일·완치·100%·1위 금지 &nbsp;③ 읽으면 무슨 가게인지 바로.<br>
+        <span style="color:var(--silver);">💡 떠올릴 거리: 그날 구운 신선함 · 좋은 재료 · 손으로 만든 · 안심하고 먹는</span></p>
+        <div class="notelines">
+          <div class="nl"><input class="noteinput q1-h" type="text" placeholder="내 헤드라인 1" oninput="syncEx(1)"></div>
+          <div class="nl"><input class="noteinput q1-h" type="text" placeholder="내 헤드라인 2" oninput="syncEx(1)"></div>
+          <div class="nl"><input class="noteinput q1-h" type="text" placeholder="내 헤드라인 3" oninput="syncEx(1)"></div>
+          <div class="nl"><input class="noteinput q1-h" type="text" placeholder="내 헤드라인 4" oninput="syncEx(1)"></div>
+          <div class="nl"><input class="noteinput q1-h" type="text" placeholder="내 헤드라인 5" oninput="syncEx(1)"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 피드백받기</div>
+        <p class="desc">위 5개를 다 쓰면 아래 프롬프트에 <b>자동으로 들어갑니다.</b> 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 수제쿠키 공방 전단 헤드라인 5개야.
+<span class="blank" id="q1-out-lines">[여기에 내가 쓴 헤드라인 5개를 붙여넣기]</span>
+
+이 5개를 점검해줘:
+① 12자 넘는 게 있는지
+② 과장·금지 표현(최고·유일·완치·100%·1위)이 들어갔는지
+③ 이대로 전단에 써도 괜찮은지, 고친다면 어디를 어떻게.
+내 표현을 살려서 다듬어주고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도 붙여줘.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실습 2 · 미용실 -->
+    <div class="card">
+      <h3>실습② 💇 미용실 헤드라인</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기 (5분)</div>
+        <p class="desc"><b>동네 미용실</b> 원장이라고 생각하고 전단 헤드라인 5개를 직접 써보세요.<br>
+        규칙: ① 각 12자 이내 &nbsp;② 최고·유일·완치·100%·1위 금지 &nbsp;③ 읽으면 무슨 가게인지 바로.<br>
+        <span style="color:var(--silver);">💡 떠올릴 거리: 예약 편리 · 시술 결과 · 동네 단골 · 합리적 가격</span></p>
+        <div class="notelines">
+          <div class="nl"><input class="noteinput q2-h" type="text" placeholder="내 헤드라인 1" oninput="syncEx(2)"></div>
+          <div class="nl"><input class="noteinput q2-h" type="text" placeholder="내 헤드라인 2" oninput="syncEx(2)"></div>
+          <div class="nl"><input class="noteinput q2-h" type="text" placeholder="내 헤드라인 3" oninput="syncEx(2)"></div>
+          <div class="nl"><input class="noteinput q2-h" type="text" placeholder="내 헤드라인 4" oninput="syncEx(2)"></div>
+          <div class="nl"><input class="noteinput q2-h" type="text" placeholder="내 헤드라인 5" oninput="syncEx(2)"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 피드백받기</div>
+        <p class="desc">위 5개를 다 쓰면 아래 프롬프트에 <b>자동으로 들어갑니다.</b> 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 미용실 전단 헤드라인 5개야.
+<span class="blank" id="q2-out-lines">[여기에 내가 쓴 헤드라인 5개를 붙여넣기]</span>
+
+이 5개를 점검해줘:
+① 12자 넘는 게 있는지
+② 과장·금지 표현(최고·유일·완치·100%·1위)이 들어갔는지
+③ 이대로 전단에 써도 괜찮은지, 고친다면 어디를 어떻게.
+내 표현을 살려서 다듬어주고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도 붙여줘.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실습 3 · 카페 -->
+    <div class="card">
+      <h3>실습③ ☕ 카페 헤드라인</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기 (5분)</div>
+        <p class="desc"><b>우리 동네 카페</b> 사장이라고 생각하고 전단 헤드라인 5개를 직접 써보세요.<br>
+        규칙: ① 각 12자 이내 &nbsp;② 최고·유일·완치·100%·1위 금지 &nbsp;③ 읽으면 무슨 가게인지 바로.<br>
+        <span style="color:var(--silver);">💡 떠올릴 거리: 분위기 · 시그니처 메뉴 · 신메뉴 · 디저트</span></p>
+        <div class="notelines">
+          <div class="nl"><input class="noteinput q3-h" type="text" placeholder="내 헤드라인 1" oninput="syncEx(3)"></div>
+          <div class="nl"><input class="noteinput q3-h" type="text" placeholder="내 헤드라인 2" oninput="syncEx(3)"></div>
+          <div class="nl"><input class="noteinput q3-h" type="text" placeholder="내 헤드라인 3" oninput="syncEx(3)"></div>
+          <div class="nl"><input class="noteinput q3-h" type="text" placeholder="내 헤드라인 4" oninput="syncEx(3)"></div>
+          <div class="nl"><input class="noteinput q3-h" type="text" placeholder="내 헤드라인 5" oninput="syncEx(3)"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 피드백받기</div>
+        <p class="desc">위 5개를 다 쓰면 아래 프롬프트에 <b>자동으로 들어갑니다.</b> 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 카페 전단 헤드라인 5개야.
+<span class="blank" id="q3-out-lines">[여기에 내가 쓴 헤드라인 5개를 붙여넣기]</span>
+
+이 5개를 점검해줘:
+① 12자 넘는 게 있는지
+② 과장·금지 표현(최고·유일·완치·100%·1위)이 들어갔는지
+③ 이대로 전단에 써도 괜찮은지, 고친다면 어디를 어떻게.
+내 표현을 살려서 다듬어주고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도 붙여줘.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실습 4 · 수제청 공방 -->
+    <div class="card">
+      <h3>실습④ 🍯 수제청 공방 헤드라인</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기 (5분)</div>
+        <p class="desc"><b>수제청 공방</b>(유자청·과일청) 사장이라고 생각하고 전단 헤드라인 5개를 직접 써보세요.<br>
+        규칙: ① 각 12자 이내 &nbsp;② 최고·유일·완치·100%·1위 금지 &nbsp;③ 읽으면 무슨 가게인지 바로.<br>
+        <span style="color:var(--silver);">💡 떠올릴 거리: 좋은 재료 · 집에서 간편 · 선물용 · 계절 과일</span></p>
+        <div class="notelines">
+          <div class="nl"><input class="noteinput q4-h" type="text" placeholder="내 헤드라인 1" oninput="syncEx(4)"></div>
+          <div class="nl"><input class="noteinput q4-h" type="text" placeholder="내 헤드라인 2" oninput="syncEx(4)"></div>
+          <div class="nl"><input class="noteinput q4-h" type="text" placeholder="내 헤드라인 3" oninput="syncEx(4)"></div>
+          <div class="nl"><input class="noteinput q4-h" type="text" placeholder="내 헤드라인 4" oninput="syncEx(4)"></div>
+          <div class="nl"><input class="noteinput q4-h" type="text" placeholder="내 헤드라인 5" oninput="syncEx(4)"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 피드백받기</div>
+        <p class="desc">위 5개를 다 쓰면 아래 프롬프트에 <b>자동으로 들어갑니다.</b> 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 수제청 공방 전단 헤드라인 5개야.
+<span class="blank" id="q4-out-lines">[여기에 내가 쓴 헤드라인 5개를 붙여넣기]</span>
+
+이 5개를 점검해줘:
+① 12자 넘는 게 있는지
+② 과장·금지 표현(최고·유일·완치·100%·1위)이 들어갔는지
+③ 이대로 전단에 써도 괜찮은지, 고친다면 어디를 어떻게.
+내 표현을 살려서 다듬어주고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도 붙여줘.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실습 5 · 꽃집 -->
+    <div class="card">
+      <h3>실습⑤ 🌸 꽃집 헤드라인</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기 (5분)</div>
+        <p class="desc"><b>동네 꽃집</b> 사장이라고 생각하고 전단 헤드라인 5개를 직접 써보세요.<br>
+        규칙: ① 각 12자 이내 &nbsp;② 최고·유일·완치·100%·1위 금지 &nbsp;③ 읽으면 무슨 가게인지 바로.<br>
+        <span style="color:var(--silver);">💡 떠올릴 거리: 기념일 · 계절 꽃 · 정기 구독 · 예쁜 포장</span></p>
+        <div class="notelines">
+          <div class="nl"><input class="noteinput q5-h" type="text" placeholder="내 헤드라인 1" oninput="syncEx(5)"></div>
+          <div class="nl"><input class="noteinput q5-h" type="text" placeholder="내 헤드라인 2" oninput="syncEx(5)"></div>
+          <div class="nl"><input class="noteinput q5-h" type="text" placeholder="내 헤드라인 3" oninput="syncEx(5)"></div>
+          <div class="nl"><input class="noteinput q5-h" type="text" placeholder="내 헤드라인 4" oninput="syncEx(5)"></div>
+          <div class="nl"><input class="noteinput q5-h" type="text" placeholder="내 헤드라인 5" oninput="syncEx(5)"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 피드백받기</div>
+        <p class="desc">위 5개를 다 쓰면 아래 프롬프트에 <b>자동으로 들어갑니다.</b> 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 꽃집 전단 헤드라인 5개야.
+<span class="blank" id="q5-out-lines">[여기에 내가 쓴 헤드라인 5개를 붙여넣기]</span>
+
+이 5개를 점검해줘:
+① 12자 넘는 게 있는지
+② 과장·금지 표현(최고·유일·완치·100%·1위)이 들어갔는지
+③ 이대로 전단에 써도 괜찮은지, 고친다면 어디를 어떻게.
+내 표현을 살려서 다듬어주고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도 붙여줘.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실습 6 · 빈칸 채워 AI에게 뽑기 -->
+    <div class="card">
+      <h3>실습⑥ 빈칸 채워 헤드라인 5개 받기</h3>
+      <p class="desc">앞에선 직접 썼다면, 이번엔 <b>우리 가게 정보를 빈칸에 채워</b> AI가 헤드라인 5개를 만들어 줍니다. (교재 워크북 방식)<br>채우면 아래 프롬프트에 <b>자동으로 들어가요</b> — 복사만 누르세요.</p>
+      <div class="fields">
+        <div class="field full"><label>나는 ___ 사장이야 (업종)</label><input id="f-job" class="line" type="text" oninput="syncFill()" placeholder="예) 카페를 운영하는"></div>
+        <div class="field full"><label>위치는 ___</label><input id="f-loc" class="line" type="text" oninput="syncFill()" placeholder="예) 화성시 동탄역 근처"></div>
+        <div class="field full"><label>우리 가게 강점은 ___</label><input id="f-str" class="line" type="text" oninput="syncFill()" placeholder="예) 직접 내린 커피, 조용한 좌석, 디저트 세트"></div>
+        <div class="field full"><label>다음 주말에 ___ 행사가 있어</label><input id="f-event" class="line" type="text" oninput="syncFill()" placeholder="예) 아메리카노+디저트 세트 할인"></div>
+      </div>
+      <div class="prompt" style="margin-top:14px;">
+        <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+        <div class="prompt-text">나는 <span class="blank" id="f-out-job">[업종]</span> 사장이야. 위치는 <span class="blank" id="f-out-loc">[위치]</span>이고, 우리 가게 강점은 <span class="blank" id="f-out-str">[강점]</span>이야. 다음 주말에 <span class="blank" id="f-out-event">[행사]</span>가 있어.
+전단지에 들어갈 헤드라인 5개를 뽑아줘. 각 헤드라인은 12자 이내, 최고·유일·완치·100%·1위 같은 과장 표현은 빼고.</div>
+        <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+      </div>
+      <p class="desc" style="margin-top:10px;">→ 나온 5개 중 <b>마음에 드는 1개</b>를 골라 아래 '메시지 랩'으로 가져갑니다.</p>
+    </div>
+
+    <h3 style="font-size:23px;color:var(--charcoal);margin:40px 0 4px;border-top:2px dashed var(--cloud);padding-top:28px;">이어서 — 업종별 메시지 랩 (3초 안에 읽히는 2줄)</h3>
+    <p class="sec-intro" style="margin-left:0;">헤드라인을 골랐으면, 그 아래 들어갈 <b>메시지 2줄</b>을 씁니다 — <b>1줄 = 혜택, 2줄 = 행동.</b> 직접 쓰면 STEP 2 프롬프트에 자동으로 들어가요.</p>
+
+    <!-- 메시지 1 · 수제쿠키 공방 -->
+    <div class="card">
+      <h3>실습⑦ 🍪 수제쿠키 공방 메시지</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기</div>
+        <p class="desc"><b>1줄 = 혜택</b>(왜 좋은지 1가지) · <b>2줄 = 행동</b>(지금 뭘 하면 되는지 1가지)<br>
+        <span style="color:var(--silver);">💡 시작 보기 — 혜택: "오늘 구운 ___" · 행동: "오후엔 품절, 지금 ___"</span></p>
+        <div class="fields">
+          <div class="field full"><label>1줄 · 혜택</label><input id="msg1-benefit" class="line" type="text" oninput="syncMsg(1)" placeholder="예) 오늘 아침 구운 쿠키예요"></div>
+          <div class="field full"><label>2줄 · 행동</label><input id="msg1-action" class="line" type="text" oninput="syncMsg(1)" placeholder="예) 오후엔 품절, 지금 들러보세요"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 다듬어 받기</div>
+        <p class="desc">위 2줄이 <b>자동으로</b> 들어갑니다. 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 수제쿠키 공방 전단 메시지 2줄이야.
+1줄(혜택): <span class="blank" id="msg1-out-benefit">[혜택 줄]</span>
+2줄(행동): <span class="blank" id="msg1-out-action">[행동 줄]</span>
+
+점검해줘: ① 손님이 3초 안에 읽고 이해할 수 있는지 ② 과장·금지 표현(최고·유일·100%·기적의·완치)이 있는지 ③ 너무 길거나 어려운 말은 없는지. 내 표현을 살려서 더 간결하게 다듬고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메시지 2 · 미용실 -->
+    <div class="card">
+      <h3>실습⑧ 💇 미용실 메시지</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기</div>
+        <p class="desc"><b>1줄 = 혜택</b>(왜 좋은지 1가지) · <b>2줄 = 행동</b>(지금 뭘 하면 되는지 1가지)<br>
+        <span style="color:var(--silver);">💡 시작 보기 — 혜택: "이번 달 ___" · 행동: "전화로 예약하면 ___"</span></p>
+        <div class="fields">
+          <div class="field full"><label>1줄 · 혜택</label><input id="msg2-benefit" class="line" type="text" oninput="syncMsg(2)" placeholder="예) 이번 달 첫 방문 10% 할인"></div>
+          <div class="field full"><label>2줄 · 행동</label><input id="msg2-action" class="line" type="text" oninput="syncMsg(2)" placeholder="예) 전화 예약하면 기다림 없이"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 다듬어 받기</div>
+        <p class="desc">위 2줄이 <b>자동으로</b> 들어갑니다. 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 미용실 전단 메시지 2줄이야.
+1줄(혜택): <span class="blank" id="msg2-out-benefit">[혜택 줄]</span>
+2줄(행동): <span class="blank" id="msg2-out-action">[행동 줄]</span>
+
+점검해줘: ① 손님이 3초 안에 읽고 이해할 수 있는지 ② 과장·금지 표현(최고·유일·100%·기적의·완치)이 있는지 ③ 너무 길거나 어려운 말은 없는지. 내 표현을 살려서 더 간결하게 다듬고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메시지 3 · 카페 -->
+    <div class="card">
+      <h3>실습⑨ ☕ 카페 메시지</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기</div>
+        <p class="desc"><b>1줄 = 혜택</b>(왜 좋은지 1가지) · <b>2줄 = 행동</b>(지금 뭘 하면 되는지 1가지)<br>
+        <span style="color:var(--silver);">💡 시작 보기 — 혜택: "주말엔 ___" · 행동: "이 전단 보여주면 ___"</span></p>
+        <div class="fields">
+          <div class="field full"><label>1줄 · 혜택</label><input id="msg3-benefit" class="line" type="text" oninput="syncMsg(3)" placeholder="예) 주말엔 세트로 더 알뜰하게"></div>
+          <div class="field full"><label>2줄 · 행동</label><input id="msg3-action" class="line" type="text" oninput="syncMsg(3)" placeholder="예) 토·일 오시면 디저트 1개 무료"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 다듬어 받기</div>
+        <p class="desc">위 2줄이 <b>자동으로</b> 들어갑니다. 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 카페 전단 메시지 2줄이야.
+1줄(혜택): <span class="blank" id="msg3-out-benefit">[혜택 줄]</span>
+2줄(행동): <span class="blank" id="msg3-out-action">[행동 줄]</span>
+
+점검해줘: ① 손님이 3초 안에 읽고 이해할 수 있는지 ② 과장·금지 표현(최고·유일·100%·기적의·완치)이 있는지 ③ 너무 길거나 어려운 말은 없는지. 내 표현을 살려서 더 간결하게 다듬고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메시지 4 · 수제청 공방 -->
+    <div class="card">
+      <h3>실습⑩ 🍯 수제청 공방 메시지</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기</div>
+        <p class="desc"><b>1줄 = 혜택</b>(왜 좋은지 1가지) · <b>2줄 = 행동</b>(지금 뭘 하면 되는지 1가지)<br>
+        <span style="color:var(--silver);">💡 시작 보기 — 혜택: "제철 ___로 직접 담근" · 행동: "이번 주 주문하면 ___"</span></p>
+        <div class="fields">
+          <div class="field full"><label>1줄 · 혜택</label><input id="msg4-benefit" class="line" type="text" oninput="syncMsg(4)" placeholder="예) 제철 유자로 직접 담갔어요"></div>
+          <div class="field full"><label>2줄 · 행동</label><input id="msg4-action" class="line" type="text" oninput="syncMsg(4)" placeholder="예) 이번 주 주문 시 택배비 무료"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 다듬어 받기</div>
+        <p class="desc">위 2줄이 <b>자동으로</b> 들어갑니다. 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 수제청 공방 전단 메시지 2줄이야.
+1줄(혜택): <span class="blank" id="msg4-out-benefit">[혜택 줄]</span>
+2줄(행동): <span class="blank" id="msg4-out-action">[행동 줄]</span>
+
+점검해줘: ① 손님이 3초 안에 읽고 이해할 수 있는지 ② 과장·금지 표현(최고·유일·100%·기적의·완치)이 있는지 ③ 너무 길거나 어려운 말은 없는지. 내 표현을 살려서 더 간결하게 다듬고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메시지 5 · 꽃집 -->
+    <div class="card">
+      <h3>실습⑪ 🌸 꽃집 메시지</h3>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 내가 써보기</div>
+        <p class="desc"><b>1줄 = 혜택</b>(왜 좋은지 1가지) · <b>2줄 = 행동</b>(지금 뭘 하면 되는지 1가지)<br>
+        <span style="color:var(--silver);">💡 시작 보기 — 혜택: "이번 주 ___ 입고" · 행동: "오늘 주문하면 ___"</span></p>
+        <div class="fields">
+          <div class="field full"><label>1줄 · 혜택</label><input id="msg5-benefit" class="line" type="text" oninput="syncMsg(5)" placeholder="예) 이번 주 제철 꽃 입고"></div>
+          <div class="field full"><label>2줄 · 행동</label><input id="msg5-action" class="line" type="text" oninput="syncMsg(5)" placeholder="예) 오늘 주문하면 오후 배송"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 다듬어 받기</div>
+        <p class="desc">위 2줄이 <b>자동으로</b> 들어갑니다. 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT</div>
+          <div class="prompt-text">내가 직접 쓴 우리 꽃집 전단 메시지 2줄이야.
+1줄(혜택): <span class="blank" id="msg5-out-benefit">[혜택 줄]</span>
+2줄(행동): <span class="blank" id="msg5-out-action">[행동 줄]</span>
+
+점검해줘: ① 손님이 3초 안에 읽고 이해할 수 있는지 ② 과장·금지 표현(최고·유일·100%·기적의·완치)이 있는지 ③ 너무 길거나 어려운 말은 없는지. 내 표현을 살려서 더 간결하게 다듬고, 통째로 새로 쓰진 마. 왜 그렇게 고쳤는지 한 줄씩 설명도.</div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="font-size:23px;color:var(--charcoal);margin:40px 0 4px;border-top:2px dashed var(--cloud);padding-top:28px;">완성 — 전단지 한 장으로 합치기</h3>
+    <p class="sec-intro" style="margin-left:0;">헤드라인·메시지를 모아 <b>전단지 한 장</b>으로 완성합니다. 이어서 상세페이지·숏폼으로 확장해요.</p>
+
+    <!-- 실습 12 · 전단지 완성하기 -->
+    <div class="card">
+      <h3>실습⑫ 전단지 완성하기 — 다 모아서 한 장으로</h3>
+      <p class="desc">손님은 <b>3초</b> 봅니다. 지금까지 만든 헤드라인·메시지에 연락처만 더해 AI에게 <b>예쁜 전단지</b>를 만들어 달라고 합니다.</p>
+      <div class="step">
+        <div class="step-tag">STEP 1 · 모아 적기</div>
+        <p class="desc">헤드라인 랩에서 고른 1줄, 메시지 랩에서 다듬은 2줄, 그리고 연락처를 적습니다.</p>
+        <div class="fields">
+          <div class="field full"><label>헤드라인 (1줄)</label><input id="flyer-head" class="line" type="text" oninput="syncFlyer()" placeholder="예) 동탄역, 직접 내린 커피"></div>
+          <div class="field full"><label>메시지 (2줄)</label><textarea id="flyer-msg" class="line tall" oninput="syncFlyer()" placeholder="예) 주말엔 세트로 더 알뜰하게 / 토·일 오시면 디저트 1개 무료"></textarea></div>
+          <div class="field full"><label>연락처 (1줄)</label><input id="flyer-contact" class="line" type="text" oninput="syncFlyer()" placeholder="예) 동탄역 2번 출구 5분 · 010-0000-0000 · @insta"></div>
+        </div>
+        <div class="card warn" style="margin:14px 0 0;">
+          <p>✅ 마지막 체크 — 카피에 <b>최고·유일·100%·기적의·완치</b>가 들어 있진 않나요?</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-tag blue">STEP 2 · AI에게 전단지 만들어 받기</div>
+        <p class="desc">위 내용이 <b>자동으로</b> 들어갑니다. 복사만 누르세요.</p>
+        <div class="prompt">
+          <div class="ptitle"><span class="pchip">붙여넣기</span> ChatGPT(이미지) / Canva 매직 미디어</div>
+          <div class="prompt-text">아래 문구로 우리 가게 홍보 전단지를 디자인해줘.
+- 비율: 세로형 A4(인쇄용)
+- 분위기: 밝고 깔끔하게, 우리 가게 느낌에 맞는 사진이나 일러스트 1개
+- 배치: 위에서부터 헤드라인(가장 크게) → 메시지 2줄 → 연락처(맨 아래)
+- 한글이 또렷하게 보이고, 여백은 넉넉하게
+
+헤드라인: <span class="blank" id="flyer-out-head">[헤드라인 1줄]</span>
+메시지: <span class="blank" id="flyer-out-msg">[메시지 2줄]</span>
+연락처: <span class="blank" id="flyer-out-contact">[연락처 1줄]</span></div>
+          <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+        </div>
+        <div class="card tip" style="margin:12px 0 0;">
+          <p>💡 AI 이미지가 <b>한글을 깨뜨리면</b>, Canva에서 전단지 템플릿을 고른 뒤 위 3줄을 <b>직접 타이핑</b>해 완성하세요. (AI는 디자인·배경 담당, 글자는 Canva가 또렷합니다.)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 과장광고 체크 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">4</div><h2>점검 — 과장광고 5종 금지</h2></div>
+    <p class="sec-intro">카피를 올리기 전, 아래 표현이 없는지 마지막으로 확인하세요.</p>
+    <div class="card">
+      <div class="banned">
+        <span>최고</span><span>유일</span><span>국내 1위</span><span>완치</span><span>100%</span>
+      </div>
+      <ul class="check" style="margin-top:8px;">
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span><b>'최고·유일·1위'</b> 같은 절대적 표현 — <b>객관적 입증 자료가 있으면 예외</b>, 입증 못 하면 부당광고(공정위 고시).</span></li>
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span><b>'완치·100%'</b> 같은 질병 효능 표현 — 식품표시광고법 §8에서 <b>원천 금지</b>(예외 없음).</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5. PART 5 페르소나 + 90분 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">5</div><h2>이제 '가르치는 사람'으로 — 90분 수업 설계</h2></div>
+    <p class="sec-intro">지금까지 "내가 만들 수 있다" → 이제 "남을 가르칠 수 있다".</p>
+
+    <div class="card">
+      <h3>워크① 내 가상 페르소나 1명 설정 (10분)</h3>
+      <p style="margin-bottom:14px;">내가 만날 소상공인 1명을 구체화합니다. <i>예) 동탄 카페 사장 김○○(52), 인스타는 보기만 함, 고민은 '신메뉴 알리기', 결과물은 '신메뉴 전단 1장'.</i></p>
+      <div class="fields">
+        <div class="field"><label>업종 / 지역</label><input class="line" type="text" placeholder="예) 동탄 카페"></div>
+        <div class="field"><label>연령</label><input class="line" type="text" placeholder="예) 52세"></div>
+        <div class="field"><label>디지털 수준 (상·중·하)</label><input class="line" type="text"></div>
+        <div class="field"><label>가장 급한 고민</label><input class="line" type="text" placeholder="예) 신메뉴 알리기"></div>
+        <div class="field full"><label>수업에서 꼭 들고 가야 할 결과물 1개</label><input class="line" type="text" placeholder="예) 신메뉴 전단 1장"></div>
+        <div class="field"><label>우리 가게를 사람으로 표현하면? (형용사 3개)</label><textarea class="line tall"></textarea></div>
+        <div class="field"><label>절대 쓰지 않을 말투는?</label><textarea class="line tall"></textarea></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>워크② 90분 시간표 짜기 (20분)</h3>
+      <div class="tt">
+        <div class="row"><div class="min">10분</div><div class="what"><b>열기</b><span>가게 자랑 1분 인터뷰</span></div></div>
+        <div class="row"><div class="min">30분</div><div class="what"><b>해보기</b><span>헤드라인 + 전단 만들기</span></div></div>
+        <div class="row"><div class="min">25분</div><div class="what"><b>확장</b><span>상세페이지 또는 숏폼 택1</span></div></div>
+        <div class="row"><div class="min">15분</div><div class="what"><b>점검</b><span>과장광고 5종 체크</span></div></div>
+        <div class="row"><div class="min">10분</div><div class="what"><b>마무리</b><span>결과물 공유 + 다음 행동 약속</span></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>워크③ 학습자용 체크리스트 4칸</h3>
+      <ul class="check">
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span>전단을 완성했다</span></li>
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span>우리 가게 말로 고쳤다</span></li>
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span>금지 표현이 없다</span></li>
+        <li><div class="box" onclick="this.classList.toggle('checked')"></div><span>오늘 밤 올릴 곳을 정했다</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 6. 복붙 프롬프트 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">6</div><h2>복붙 프롬프트 — 수업 설계 자동화</h2></div>
+    <p class="sec-intro">수업안과 사업계획 초안을 AI에게 통째로 시켜 보세요.</p>
+
+    <div class="card">
+      <h3>🧩 소상공인 90분 수업안 자동 초안</h3>
+      <div class="prompt">
+        <div class="ptitle"><span class="pchip copy">복붙 프롬프트</span> ChatGPT</div>
+        <div class="prompt-text">당신은 소상공인 디지털 교육 전문가입니다. <span class="blank">[업종/연령/디지털수준]</span> 학습자를 위한 90분 수업안을 만들어 주세요.
+구조: 열기10 - 해보기30 - 확장25 - 점검15 - 마무리10.
+결과물은 <span class="blank">[전단지 1장]</span>. 과장광고·저작권 체크 10분을 반드시 포함.
+강사 대사 예시와 학습자 활동지(미션-가이드-평가기준)도 함께 만들어 주세요.</div>
+        <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📄 1장짜리 사업계획 요약</h3>
+      <div class="prompt">
+        <div class="ptitle"><span class="pchip copy">복붙 프롬프트</span> ChatGPT</div>
+        <div class="prompt-text">지금까지 만든 우리 가게 카피(전단지 헤드라인·메시지)를 바탕으로, 소상공인 정책자금 신청용 1페이지 사업계획 요약을 만들어줘.
+항목: 사업 개요 / 고객과 문제 / 해결 방안 / 매출 계획(보수적으로) / 필요 자금과 용도.</div>
+        <button class="copy-btn" onclick="copyPrompt(this)">📋 복사</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 카피 10줄 노트 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">7</div><h2>카피 10줄 노트</h2></div>
+    <p class="sec-intro">오늘 쓴 카피를 한 페이지에 모읍니다 — 헤드라인 5줄 + 전단 3줄 + 후크 1줄 + CTA 1줄.</p>
+    <div class="card">
+      <div class="notelines">
+        <div class="nl"><input class="noteinput" type="text" placeholder="헤드라인 ①"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="헤드라인 ②"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="헤드라인 ③"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="헤드라인 ④"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="헤드라인 ⑤"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="전단 1줄"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="전단 2줄"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="전단 3줄"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="상세페이지 후크 1줄"></div>
+        <div class="nl"><input class="noteinput" type="text" placeholder="CTA 1줄"></div>
+      </div>
+      <p style="margin-top:14px;font-size:14px;">정리 기준: ① 12자 이내인가 &nbsp;② 과장 표현 5종이 없는가 &nbsp;③ 읽으면 행동이 떠오르는가</p>
+    </div>
+  </section>
+
+  <!-- 8. OX 퀴즈 -->
+  <section>
+    <div class="sec-head"><div class="sec-num">8</div><h2>5주 마무리 OX 퀴즈</h2></div>
+    <p class="sec-intro">O / X 를 모두 고른 뒤 <b>완료</b>를 누르면 정답과 해설을 바로 확인할 수 있어요.</p>
+    <ul class="quiz" id="quiz">
+      <li data-answer="X">
+        <div class="ox"><b onclick="pickOX(this)">O</b><b onclick="pickOX(this)">X</b></div>
+        <div class="qtext"><span>무료 AI로 만든 곡은 바로 수익화해도 된다</span>
+          <p class="explain">정답 X — 상업 이용은 유료 플랜부터 가능합니다.</p></div>
+      </li>
+      <li data-answer="O">
+        <div class="ox"><b onclick="pickOX(this)">O</b><b onclick="pickOX(this)">X</b></div>
+        <div class="qtext"><span>'최고의 맛집'은 입증 자료 없으면 부당광고다</span>
+          <p class="explain">정답 O — 객관적 입증 자료가 없으면 부당광고(공정위 고시)입니다.</p></div>
+      </li>
+      <li data-answer="X">
+        <div class="ox"><b onclick="pickOX(this)">O</b><b onclick="pickOX(this)">X</b></div>
+        <div class="qtext"><span>눈누 폰트는 전부 조건 없이 상업 사용 가능하다</span>
+          <p class="explain">정답 X — 눈누는 모아 보여줄 뿐, 라이선스는 폰트마다 다르므로 확인해야 합니다.</p></div>
+      </li>
+      <li data-answer="O">
+        <div class="ox"><b onclick="pickOX(this)">O</b><b onclick="pickOX(this)">X</b></div>
+        <div class="qtext"><span>보이스피싱 신고는 112로 통합되었다</span>
+          <p class="explain">정답 O — 보이스피싱 신고는 112로 통합되었습니다.</p></div>
+      </li>
+      <li data-answer="O">
+        <div class="ox"><b onclick="pickOX(this)">O</b><b onclick="pickOX(this)">X</b></div>
+        <div class="qtext"><span>소상공인 수업의 첫 결과물은 60분 안에 나와야 한다</span>
+          <p class="explain">정답 O — 소상공인 수업은 '빨리 결과', 첫 결과물은 60분 안에 나와야 합니다.</p></div>
+      </li>
+    </ul>
+    <button class="done-btn" id="quizDone" onclick="gradeQuiz()">✅ 완료하고 결과 보기</button>
+    <div class="quiz-score" id="quizScore"></div>
+  </section>
+
+  <!-- CLOSING -->
+  <div class="closing">
+    <h2>이제 누구를 만나도<br>수업을 설계할 수 있습니다 💪</h2>
+    <p>1주 나 → 2주 설계 → 3주 노인 → 4주 청소년 → <b>5주 소상공인</b><br>다섯 번의 여정을 끝낸 여러분은 진짜 'AI 시민리더'입니다.</p>
+    <div class="next">👉 다음 주: 이정은 강사님과 업무자동화 (노코드·바이브코딩)</div>
+  </div>
+
+  <p class="foot">화성 AI 시민리더 양성과정 · 5주차 · 핸드아웃 ① (전단지)</p>
+
+</div>
+
+<script>
+function pickOX(el){
+  var li = el.closest('li');
+  if(li && li.classList.contains('locked')) return; // 채점 후 잠금
+  var group = el.parentNode;
+  var items = group.querySelectorAll('b');
+  for(var i=0;i<items.length;i++){ items[i].classList.remove('sel'); }
+  el.classList.add('sel');
+}
+
+function gradeQuiz(){
+  var lis = document.querySelectorAll('#quiz li');
+  var correct = 0, total = lis.length;
+  lis.forEach(function(li){
+    li.classList.add('locked');
+    var ans = li.getAttribute('data-answer');
+    var bs = li.querySelectorAll('.ox b');
+    var picked = null;
+    bs.forEach(function(b){
+      if(b.textContent === ans) b.classList.add('ans');   // 정답 위치 표시
+      if(b.classList.contains('sel')) picked = b;
+    });
+    if(picked && picked.textContent === ans){
+      correct++; li.classList.add('correct');
+    } else {
+      li.classList.add('wrong');
+      if(picked){ picked.classList.remove('sel'); picked.classList.add('wrongpick'); }
+    }
+  });
+
+  var msg = correct === total ? '완벽해요! 5주 과정 핵심을 다 잡았어요 🎉'
+          : correct >= 3 ? '잘했어요! 틀린 문항 해설을 한 번만 더 확인해 보세요 👍'
+          : '괜찮아요, 다시 볼까요? 각 문항 해설을 천천히 읽어보세요 💪';
+  var score = document.getElementById('quizScore');
+  score.innerHTML = '<div class="score-num">' + correct + ' / ' + total + ' 정답</div>'
+                  + '<div class="score-msg">' + msg + '</div>'
+                  + '<button class="done-btn retry" onclick="resetQuiz()">🔄 다시 풀기</button>';
+  score.classList.add('show');
+  document.getElementById('quizDone').style.display = 'none';
+  score.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function resetQuiz(){
+  document.querySelectorAll('#quiz li').forEach(function(li){
+    li.classList.remove('locked','correct','wrong');
+    li.querySelectorAll('.ox b').forEach(function(b){
+      b.classList.remove('sel','ans','wrongpick');
+    });
+  });
+  var score = document.getElementById('quizScore');
+  score.classList.remove('show'); score.innerHTML = '';
+  document.getElementById('quizDone').style.display = 'block';
+  document.getElementById('quiz').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function syncEx(n){
+  var hs = document.querySelectorAll('.q' + n + '-h');
+  var lines = [];
+  hs.forEach(function(h, i){
+    var v = (h.value || '').trim();
+    if(v) lines.push((i + 1) + '. ' + v);
+  });
+  var out = document.getElementById('q' + n + '-out-lines');
+  if(lines.length){ out.textContent = lines.join('\n'); out.classList.add('filled'); }
+  else { out.textContent = '[여기에 내가 쓴 헤드라인 5개를 붙여넣기]'; out.classList.remove('filled'); }
+}
+
+function bindSpan(inputId, spanId, ph){
+  var el = document.getElementById(inputId);
+  var s = document.getElementById(spanId);
+  if(!el || !s) return;
+  var v = (el.value || '').trim();
+  if(v){ s.textContent = v; s.classList.add('filled'); }
+  else { s.textContent = ph; s.classList.remove('filled'); }
+}
+function syncFill(){
+  bindSpan('f-job', 'f-out-job', '[업종]');
+  bindSpan('f-loc', 'f-out-loc', '[위치]');
+  bindSpan('f-str', 'f-out-str', '[강점]');
+  bindSpan('f-event', 'f-out-event', '[행사]');
+}
+function syncMsg(n){
+  bindSpan('msg' + n + '-benefit', 'msg' + n + '-out-benefit', '[혜택 줄]');
+  bindSpan('msg' + n + '-action', 'msg' + n + '-out-action', '[행동 줄]');
+}
+function syncFlyer(){
+  bindSpan('flyer-head', 'flyer-out-head', '[헤드라인 1줄]');
+  bindSpan('flyer-msg', 'flyer-out-msg', '[메시지 2줄]');
+  bindSpan('flyer-contact', 'flyer-out-contact', '[연락처 1줄]');
+}
+function syncDetail(){
+  bindSpan('persona-job', 'det-out-job', '[업종/가게]');
+  bindSpan('persona-product', 'det-out-product', '[주력 상품/서비스]');
+  bindSpan('persona-target', 'det-out-target', '[누구에게]');
+  bindSpan('det-problem', 'det-out-problem', '[② 문제제기]');
+  bindSpan('det-proof', 'det-out-proof', '[④ 증거]');
+  bindSpan('det-diff', 'det-out-diff', '[⑤ 차별화]');
+}
+
+function flashCopied(btn){
+  if(!btn.getAttribute('data-default')) btn.setAttribute('data-default', btn.textContent);
+  btn.textContent = '✅ 복사됨!';
+  setTimeout(function(){ btn.textContent = btn.getAttribute('data-default'); }, 1500);
+}
+function legacyCopy(text, btn){
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.setAttribute('readonly', '');
+  ta.style.position = 'fixed';
+  ta.style.top = '-9999px';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch(e) { ok = false; }
+  document.body.removeChild(ta);
+  if(ok){ flashCopied(btn); }
+  else {
+    if(!btn.getAttribute('data-default')) btn.setAttribute('data-default', btn.textContent);
+    btn.textContent = '⚠️ 직접 드래그해 복사하세요';
+    setTimeout(function(){ btn.textContent = btn.getAttribute('data-default'); }, 2200);
+  }
+}
+function copyPrompt(btn){
+  var box = btn.closest('.prompt');
+  var text = box.querySelector('.prompt-text').innerText;
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(function(){ flashCopied(btn); })
+      .catch(function(){ legacyCopy(text, btn); });
+  } else {
+    legacyCopy(text, btn);
+  }
+}
+</script>
+</body>
+</html>
